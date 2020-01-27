@@ -56,10 +56,17 @@ if (isDeveloping) {
 
 app.post('/auth', function (req, res) {
   ochre.auth(req.body.client_id, req.body.client_secret)
-    .then((response) => response.text())
+    .then((response) => {
+      return response.json()
+    })
     .then( token => {
-      res.send(token)
-    });
+      res.send(JSON.stringify(token))
+    })
+    .catch( error => {
+      console.error('Error on Ochre Auth: ', error);
+      res.status(400);
+      res.send('Ivalid credentials');
+    })
 });
 
 app.listen(port, '0.0.0.0', function onStart(err) {

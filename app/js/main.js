@@ -19,7 +19,11 @@ auth_submit.addEventListener('click', (event) => {
       'content-type': 'application/json'
     }
   })
-  .then((response) => response.text())
-  .then((data) => console.log(data))
+  .then((response) => {
+    if (!response.ok) throw Error('Invalid Credentials');
 
+    return response.json();
+  })
+  .then((data) => console.log(data))
+  .catch(error => console.error(error))
 });
