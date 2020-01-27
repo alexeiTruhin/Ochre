@@ -3,6 +3,7 @@
 
 const path = require('path');
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const webpack = require('webpack');
 const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
@@ -16,6 +17,12 @@ const fetch = require('node-fetch');
 
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded()); // to support URL-encoded bodies
+app.use(cookieParser())
+
+
+app.get('/', function response(req, res) {
+  res.redirect('/songs');
+});
 
 if (isDeveloping) {
   const compiler = webpack(config);
@@ -40,17 +47,25 @@ if (isDeveloping) {
     res.end();
   });
 
-  app.get('/', function response(req, res) {
-    res.write(middleware.fileSystem.readFileSync(path.join(__dirname, '../dist/index.html')));
-    res.end();
+  app.get('/songs', function response(req, res) {
+    if (!req.cookies.access_token) {  
+      res.redirect('/auth') ;
+    } else {
+      res.write(middleware.fileSystem.readFileSync(path.join(__dirname, '../dist/index.html')));
+      res.end();
+    }
   });
 } else {
   app.use(express.static(__dirname + '../dist'));
   app.get('/auth', function response(req, res) {
     res.sendFile(path.join(__dirname, '../dist/auth.html'));
   });
-  app.get('/', function response(req, res) {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  app.get('/songs', function response(req, res) {
+    if (!req.cookies.access_token) {  
+      res.redirect('/auth') 
+    } else {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    }
   });
 }
 
@@ -60,6 +75,7 @@ app.post('/auth', function (req, res) {
       return response.json()
     })
     .then( token => {
+      res.cookie('access_token', token.access_token, {maxAge: token.expires_in * 1000 })
       res.send(JSON.stringify(token))
     })
     .catch( error => {

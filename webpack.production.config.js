@@ -8,7 +8,7 @@ var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
   entry: [
-    path.join(__dirname, 'app/main.js')
+    path.join(__dirname, 'app/js/main.js')
   ],
   output: {
     path: path.join(__dirname, '/dist/'),
@@ -21,6 +21,11 @@ module.exports = {
       template: 'app/index.tpl.html',
       inject: 'body',
       filename: 'index.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: 'app/view/auth.tpl.html',
+      inject: 'body',
+      filename: 'auth.html'
     }),
     new ExtractTextPlugin('[name]-[hash].min.css'),
     new webpack.optimize.UglifyJsPlugin({
@@ -43,7 +48,7 @@ module.exports = {
       exclude: /node_modules/,
       loader: 'babel',
       query: {
-        "presets": ["es2015", "stage-0", "react"]
+        "presets": ["es2015", "stage-0"]
       }
     }, {
       test: /\.json?$/,
