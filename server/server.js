@@ -19,7 +19,6 @@ app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded()); // to support URL-encoded bodies
 app.use(cookieParser())
 
-
 app.get('/', function response(req, res) {
   res.redirect('/songs');
 });
@@ -83,6 +82,21 @@ app.post('/auth', function (req, res) {
       res.status(400);
       res.send('Ivalid credentials');
     })
+});
+
+app.get('/api/songs', function (req, res, next) {
+  if (req.cookies.access_token) {
+    ochre.songs(req.cookies.access_token, 24)
+      .then((response) => {
+        return response.json()
+      })
+      .then( songs => {
+        res.send(JSON.stringify(songs.results))
+      })
+      .catch( error => {
+        next(error)
+      });
+  }
 });
 
 app.listen(port, '0.0.0.0', function onStart(err) {

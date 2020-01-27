@@ -22,4 +22,13 @@ module.exports = class Ochre {
       body: toUrlEncoded(data)
     });
   }
+
+  songs (token, limit = 24) {
+    return fetch('https://api.ochre.io/v1/music/releases?' + toUrlEncoded({limit: limit}), {
+      method: 'GET',
+      headers: { 
+        'Authorization': 'Bearer ' + token
+      },
+    });
+  }
 }
